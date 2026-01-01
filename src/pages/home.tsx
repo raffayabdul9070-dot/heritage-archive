@@ -35,12 +35,10 @@ const Home = () => {
       >
         <span className="hero-badge">Digital Archive 2025</span>
         
-        {/* Updated Title Line */}
         <h1 className="hero-main-title">
           Geolinguistic Survey of <span className="gold-gradient">Pakistan</span>
         </h1>
         
-        {/* TYPEWRITER TEXT */}
         <p className="hero-tagline">
           {text}<span className="cursor">|</span>
         </p>
@@ -50,12 +48,12 @@ const Home = () => {
             EXPLORE ARCHIVE
           </button>
           <button className="btn-outline" onClick={() => navigate('/survey')}>
-            START LANGUAGE SURVEY
+            START SURVEY
           </button>
         </div>
       </motion.div>
 
-      {/* DECORATIVE STATS BAR */}
+      {/* STATS BAR */}
       <motion.div 
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}

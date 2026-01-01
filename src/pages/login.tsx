@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-// Import AnimatePresence and motion for the animation to work
 import { motion, AnimatePresence } from 'framer-motion'; 
+// Import Firebase functions and your config
+import { auth } from './firebaseConfig'; 
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import './login.css';
 
 interface LoginProps {
@@ -8,30 +10,32 @@ interface LoginProps {
 }
 
 const Login = ({ onLogin }: LoginProps) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(''); // Firebase uses email
   const [password, setPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
   const [isResetting, setIsResetting] = useState(false);
-  const [currentSavedPassword, setCurrentSavedPassword] = useState('123');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // --- 1. Real Login Logic ---
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'admin' && password === currentSavedPassword) {
-      onLogin();
-    } else {
-      alert("Access Denied: Invalid Credentials");
+    try {
+      // This checks the user against your Firebase Database
+      await signInWithEmailAndPassword(auth, email, password);
+      onLogin(); 
+    } catch (error) {
+      alert("Access Denied: Identity could not be verified.");
     }
   };
 
-  const handleResetPassword = (e: React.FormEvent) => {
+  // --- 2. Real Password Reset Logic ---
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'admin') {
-      setCurrentSavedPassword(newPassword);
-      alert("Security Key Updated Successfully!");
+    try {
+      // Sends a real reset link to the researcher's email
+      await sendPasswordResetEmail(auth, email);
+      alert("Security Reset Link sent to your official email!");
       setIsResetting(false);
-      setPassword(''); // Clear the password field for the login screen
-    } else {
-      alert("Error: Researcher ID not recognized.");
+    } catch (error) {
+      alert("Error: Researcher ID/Email not found in our records.");
     }
   };
 
@@ -55,12 +59,23 @@ const Login = ({ onLogin }: LoginProps) => {
               onSubmit={handleSubmit}
             >
               <div className="input-row">
-                <label>Researcher ID</label>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                <label>Official Email (Researcher ID)</label>
+                <input 
+                  type="email" 
+                  value={email} 
+                  placeholder="admin@portal.pk"
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
+                />
               </div>
               <div className="input-row">
                 <label>Security Key</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <input 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  required 
+                />
               </div>
               <button type="submit" className="verify-btn">VERIFY IDENTITY</button>
               
@@ -81,16 +96,18 @@ const Login = ({ onLogin }: LoginProps) => {
               className="login-form-fields" 
               onSubmit={handleResetPassword}
             >
-              <p className="reset-instruction">Enter Researcher ID to verify identity and set a new key.</p>
+              <p className="reset-instruction">Enter your official email to receive a secure password reset link.</p>
               <div className="input-row">
-                <label>Verify Researcher ID</label>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                <label>Verify Researcher ID (Email)</label>
+                <input 
+                  type="email" 
+                  value={email} 
+                  placeholder="admin@portal.pk"
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
+                />
               </div>
-              <div className="input-row">
-                <label>New Security Key</label>
-                <input type="password" onChange={(e) => setNewPassword(e.target.value)} required />
-              </div>
-              <button type="submit" className="verify-btn">UPDATE KEY</button>
+              <button type="submit" className="verify-btn">SEND RESET LINK</button>
               
               <button 
                 type="button" 
